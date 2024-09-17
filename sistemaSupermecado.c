@@ -2,37 +2,45 @@
 //GITHUB: https://github.com/gabrielentediado
 
 #include <stdio.h>
-#include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "funcInit.h"
 
+#ifdef _WIN32
+    #define CLEAR "cls"
+#else
+    #define CLEAR "clear"
+#endif
+
+int menuNav = 0; 
+
 int main(){
-    printf("Iniciando o menu\n");
-    menu(NULL, NULL);
+    Produto produtos[50];
+    int N = 0;
+
+    printf("Iniciando o menu:\n");
+    sleep(3);
+    menu(produtos, &N);
+
+    return 0;
 }
 
 void menu(Produto *prod_cadastrados, int *tamanho){
+    
     printf("Digite:\n");
-    printf("1-Para cadastrar um novo produto\n2-listar produtos cadastrados\n3-adicionar produto ao carrinho\n4-visualizar carrinho\n5-sair");
+    printf("1-Para cadastrar um novo produto\n2-listar produtos cadastrados\n3-ir para sessão de compras\n4-visualizar carrinho\n5-sair\n");
     scanf("%d", &menuNav);
     getchar();
+
     switch (menuNav) {
         case 1:
-        cadastrar_produtos();
+        cadastrar_produtos(prod_cadastrados, tamanho);   
         break;
         case 2: 
         listar_produtos(prod_cadastrados, tamanho);
         break;
-        case 3: 
-        comprar_produtos();
-        break;
-        case 4:
-        visualizar_carrinho();
-        break;
-
-        case 5:
-        printf("obrigado, volte sempre");
+        comprar_produtos(prod_cadastrados, tamanho);
         break;
 
         default:
@@ -41,13 +49,22 @@ void menu(Produto *prod_cadastrados, int *tamanho){
     }
 }
 
-void comprar_produtos(){
+void comprar_produtos(Produto *produtos_cadastrados, int *tamanho){
+    Carrinho produtos_carrinho[50];
 
-    Carrinho carrinho[50]; 
-    //adicionar ao carrinho só produtos cadastrados
-    printf("Produtos que estão no supermecado: ");
+    printf("Mostrando todos os produtos do supermecado \n");
+    
+    for (int i=0; i<*tamanho; i++) {
+        printf("_____________________________________________________________________________\n\n");
+        printf("Nome do %d° produto cadastrado no sistema: %s \n", i+1, (produtos_cadastrados+i)->nome);
+        printf("Código do %d° produto cadastrado no sistema: %d \n", i+1, (produtos_cadastrados+i)->codigo);
+        printf("Quantidade do %d° produto cadastrado no sistema: %2f \n", i+1, (produtos_cadastrados+i)->preco);
+        printf("_____________________________________________________________________________\n");
+        puts("");
+    }
 
 }
+
 
 void listar_produtos(Produto *produtos_cadastrados, int *tamanho){
     printf("listando produtos\n");
@@ -55,35 +72,37 @@ void listar_produtos(Produto *produtos_cadastrados, int *tamanho){
     for (int i=0; i<*tamanho; i++) {
         printf("Nome do %d° produto cadastrado no sistema: %s \n", i+1, (produtos_cadastrados+i)->nome);
         printf("Código do %d° produto cadastrado no sistema: %d \n", i+1, (produtos_cadastrados+i)->codigo);
-        printf("Quantidade do %d° produto cadastrado no sistema: %f \n", i+1, (produtos_cadastrados+i)->preco);
+        printf("Quantidade do %d° produto cadastrado no sistema: %2f \n", i+1, (produtos_cadastrados+i)->preco);
         puts("");
     }
     printf("Todos produtos foram mostrados com sucesso");
     sleep(5);
     menu(produtos_cadastrados, tamanho);
 }
-void cadastrar_produtos(){
+
+void cadastrar_produtos(Produto * produtos, int * N){
     //para cadastrar
-    Produto produtos[50];
-    int N;
-    printf("Deseja cadastrar quantos produtos\n");
-    scanf("%d", &N);
-    char nome[20][N]; 
+   
+    printf("Deseja cadastrar quantos produtos?\n");
+    scanf("%d", N);
+    getchar();
     
-    for (int i=0; i<N; i++) {
-        printf("Digite o codigo do %d° produto\n(limite de nome 20 letras)\n", i+1);
+    for (int i=0; i<*N; i++) {
+
+        system(CLEAR);
+        printf("__________________________________________________________________________\n\n");
+        printf("Digite o codigo do %d° produto: \n", i+1);
         scanf("%d", &produtos[i].codigo);   
 
-        printf("Digite o nome do %d° produto\n", i+1);
-        scanf("%20s", nome[i]);
+        printf("Digite o nome do %d° produto (limite de letras 20): \n", i+1);
+        scanf("%19s", produtos[i].nome);
 
-        strcpy(produtos[i].nome, nome[i]);
-
-        printf("Digite o  preço do %d° produto\n", i+1);
+        printf("Digite o  preço do %d° produto: \n", i+1);
         scanf("%f", &produtos[i].preco);
-       
+
     }
     sleep(5);
     printf("voltando para menu\n");
-    menu(produtos, &N);
+
+    menu(produtos, N);
 }
