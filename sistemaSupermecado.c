@@ -1,5 +1,6 @@
 //AUTHOR: GABRIEL CARDOSO   
 //GITHUB: https://github.com/gabrielentediado
+
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -13,7 +14,7 @@ int main(){
 
 void menu(Produto *prod_cadastrados, int *tamanho){
     printf("Digite:\n");
-    printf("1-Para cadastrar um novo produto\n2-listar produtos cadastrados\n3-adicionar produto ao carrinho\n4-visualizar carrinho");
+    printf("1-Para cadastrar um novo produto\n2-listar produtos cadastrados\n3-adicionar produto ao carrinho\n4-visualizar carrinho\n5-sair");
     scanf("%d", &menuNav);
     getchar();
     switch (menuNav) {
@@ -30,8 +31,12 @@ void menu(Produto *prod_cadastrados, int *tamanho){
         visualizar_carrinho();
         break;
 
+        case 5:
+        printf("obrigado, volte sempre");
+        break;
+
         default:
-        main();
+        menu(prod_cadastrados, tamanho);
         break;
     }
 }
@@ -57,8 +62,6 @@ void listar_produtos(Produto *produtos_cadastrados, int *tamanho){
     sleep(5);
     menu(produtos_cadastrados, tamanho);
 }
-    int i;
-
 void cadastrar_produtos(){
     //para cadastrar
     Produto produtos[50];
