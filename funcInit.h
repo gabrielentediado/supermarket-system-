@@ -15,8 +15,7 @@ typedef struct {
 void menu(Produto *prod_cadastrados, int *tamanho);
 void listar_produtos(Produto *produtos_cadastrados, int *tamanho);
 void cadastrar_produtos(Produto *produtos, int *N);
-
-void comprar_produtos();
+void comprar_produtos(Produto *produtos_cadastrados, int *tamanho);
 void visualizar_carrinho();
 
 void fechar_pedido(Carrinho *carrinho, int tamanho);
