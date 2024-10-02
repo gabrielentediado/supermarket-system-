@@ -23,7 +23,7 @@ Este é um programa simples para gerenciar um supermercado, escrito em C. O sist
 1. **Clone o Repositório**
 
 ```bash
-git clone https://github.com/seu-usuario/sistemaSupermercado.git
+git clone https://github.com/gabrielentediado/supermarket-system-
 cd sistemaSupermercado
 
 
