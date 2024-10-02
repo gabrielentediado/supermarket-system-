@@ -69,7 +69,7 @@ O projeto é composto por várias funções que realizam operações específica
 
         Permite encontrar um produto específico pelo código.
 
-Desenvolvimento
+#Desenvolvimento
 
 O sistema foi desenvolvido seguindo boas práticas de programação em C, com atenção especial à modularidade e clareza do código. As structs Produto e Carrinho foram criadas para armazenar informações sobre os produtos e o carrinho de compras, respectivamente. As funções foram organizadas em um arquivo header (funcinit.h) para manter o código limpo e organizado.
 
