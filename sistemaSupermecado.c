@@ -1,10 +1,20 @@
 //AUTHOR: GABRIEL CARDOSO   
 //GITHUB: https://github.com/gabrielentediado
 
+#include <complex.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
+
+/*
+
+Professor, não se fiz o código do jeito certo, achei que ia ser legal se o usuário conseguisse adicionar mais de um item ao carrinho, 
+mas tive que mudar algumas coisas do código para isso funcionar, acho que ia funcionar melhor se o N (do tamanho), fosse em alocação dinâmica
+
+*/
+
 
 #include "funcInit.h"
 
@@ -18,6 +28,8 @@
 //variaveis globais
 int menuNav = 0; 
 Carrinho produtos_carrinho[50];
+int tamanho=0;
+int quantidade_itens_carrinho=0;
 
 /* Aqui na função main só chama o Switch case para o menu para o usuário */
 int main(){
@@ -29,7 +41,8 @@ int main(){
     for (int i=0; i<50; i++) {
         produtos[i].preco = 0; 
         produtos[i].codigo = 0;
-    }
+    }/* COLOQUEI O I PARA SER O VALOR DO TAMANHO, POIS TODA VEZ QUE VOLTAR NESSA FUNÇÃO O I VAI RECEBER O VALOR DO TAMANHO, ASSIM NÃO SOBRESCREVE NO SISTEMA */
+    
     printf("Iniciando o menu...\n");
     sleep(3); /* AQUI TEM UM DELAY DE 3 SEGUNDOS */
     menu(produtos, &N);
@@ -38,9 +51,11 @@ int main(){
 }
 /* O menu instância ponteiros recebendo o array dos produtos de struct produto e o valor do tamanho */
 void menu(Produto *prod_cadastrados, int *tamanho){
+
+    int codigo;
     system(CLEAR);
     printf("Digite:\n");
-    printf("1-Para cadastrar um novo produto\n2-listar produtos cadastrados\n3-ir para sessão de compras\n4-visualizar carrinho\n5-sair\n");
+    printf("1-Para cadastrar um novo produto\n2-listar produtos cadastrados\n3-adicionar ao carrinho\n4-visualizar carrinho\n5-fechar pedido\n6-pequisar por codigo\n-sair\n");
     scanf("%d", &menuNav);
     getchar();
 
@@ -57,10 +72,36 @@ void menu(Produto *prod_cadastrados, int *tamanho){
         case 4:
         visualizar_carrinho(prod_cadastrados, tamanho);
         break;
+        case 5:
+        fechar_pedido(tamanho);
+        break;
+        case 6:
+       
+        printf("Digite o codigo do produto: ");
+        scanf("%d", &codigo);
+        Produto *produto = pegar_produto_por_codigo(prod_cadastrados, *tamanho, codigo);
+        if (produto != NULL) {
+            printf("Produto encontrado: %s\n", produto->nome);
+        } else {
+            printf("Produto não encontrado.\n");
+        }
+        sleep(2);
+        
+        break;
+        
         default:
         menu(prod_cadastrados, tamanho);
         break;
     }
+}
+
+Produto* pegar_produto_por_codigo(Produto *produtos, int tamanho, int codigo) {
+    for (int i = 0; i < tamanho; i++) {
+        if (produtos[i].codigo == codigo) {
+            return &produtos[i];
+        }
+    }
+    return NULL;
 }
 
 /* AQUI TALVEZ SEJA A PARTE MAIS SIMPLES DO CÓDIGO, É SÓ UMA INTEIRAÇÃO NORMAL EM UM LOOP FOR */
@@ -68,12 +109,12 @@ void menu(Produto *prod_cadastrados, int *tamanho){
 void visualizar_carrinho(Produto *produtos_cadastrados, int *tamanho2){
     system(CLEAR);
 
-    for (int i=0; i < produtos_carrinho[0].quantidade; i++) {
+    for (int i=0; i < quantidade_itens_carrinho; i++) {
         printf("_____________________________________________________________________________\n\n");
         printf("Produto número: %d\n", i+1);
         printf("Nome do %d° produto cadastrado no sistema: %s \n", i+1, produtos_carrinho[i].produto.nome);
         printf("Código do %d° produto cadastrado no sistema: %d \n", i+1, produtos_carrinho[i].produto.codigo);
-        printf("Quantida do produto no seu carrinho: %d \n", produtos_carrinho[i].quantidade);
+        printf("Quantida do produto no seu carrinho: %d \n", produtos_carrinho[i].quantidade+1); /*A QUANTIDADE TAVA COMEÇANDO EM 0, ENTÃO SÓ ADICIONEI +1, VISTO QUE O ARRAY COMEÇA EM 0*/
         printf("Preço do %d° produto cadastrado no sistema: %.2f \n", i+1, produtos_carrinho[i].produto.preco);
         printf("_____________________________________________________________________________\n");
         puts("");
@@ -83,12 +124,55 @@ void visualizar_carrinho(Produto *produtos_cadastrados, int *tamanho2){
 }
 
 
+void fechar_pedido(){
+    system(CLEAR);
+
+    for (int i=0; i < quantidade_itens_carrinho; i++) {
+        printf("_____________________________________________________________________________\n\n");
+        printf("Produto número: %d\n", i+1);
+        printf("Nome do %d° produto cadastrado no sistema: %s \n", i+1, produtos_carrinho[i].produto.nome);
+        printf("Código do %d° produto cadastrado no sistema: %d \n", i+1, produtos_carrinho[i].produto.codigo);
+        printf("Quantida do produto no seu carrinho: %d \n", produtos_carrinho[i].quantidade+1);
+        printf("Preço do %d° produto cadastrado no sistema: %.2f \n", i+1, produtos_carrinho[i].produto.preco);
+        printf("_____________________________________________________________________________\n");
+        puts("");
+    }
+    sleep(10);
+
+    /* CALCULAR O VALOR DO PEDIDO, O ALGORITMO É ATÉ AUTOMATIZADO,  EX: SE COLOCAR 3 BANANAS, VAI FAZER (3 * PREÇO), DE CADA POSIÇÃO DO ARRAY*/
+
+    /* E DEPOIS E SÓ SOMAR TUDO */
+    float  somar=0;
+    float multiplicações[50];
+    int quantidade=0; 
+
+    for (int i=0; i < quantidade_itens_carrinho; i++) {
+        quantidade = quantidade + produtos_carrinho[i].quantidade+1; 
+    }
+
+    printf("Quantidade total de produtos no carrinho %d\n", quantidade);
+    sleep(5);
+
+    for (int i=0; i < quantidade_itens_carrinho; i++) {
+        multiplicações[i] = produtos_carrinho[i].produto.preco * (produtos_carrinho[i].quantidade+1); 
+        somar = somar + multiplicações[i]; 
+    }
+
+    printf("Total da compra: %.2f\n", somar);
+
+    printf("Deseja finalizar compra? \n1-para sim\n2-para não\n");
+
+    scanf("%d", &menuNav);
+    printf("Preço total: %.2f", somar);
+    sleep(5);
+
+}
+
 
 int tem_no_carrinho(int codigo, int * tamanho){
-
+    int i; 
     int verificar;
-    for (int i = 0; i < *tamanho; i++) {
-    
+    for (i = 0; i < *tamanho; i++) {
         if (codigo == produtos_carrinho[i].produto.codigo) {
             verificar = 1; 
             break;
@@ -96,9 +180,9 @@ int tem_no_carrinho(int codigo, int * tamanho){
     
     }
     if (verificar == 1) {
-        return 1; 
+        return i; 
     }else {
-        return 0;
+        return -1;
     }
 }
 
@@ -136,23 +220,59 @@ void comprar_produtos(Produto *produtos_cadastrados, int *tamanho){
             SE A VARIÁVEL 'SAIR' FOR DIFERENTE DE 1 O LOOP QUEBRA, E A VARIÁVEL i VAI INCREMENTANDO PARA COLOCAR EM ORDEM NO ARRAY DO CARRINHO
         */
         do {
+            int verificar;
             int numero;
-            printf("Digite o número do produto para adicionar \n");
-            scanf("%d", &numero);
+            printf("\nDigite\n 1- Para adiconar produto pelo NÚMERO\n2- Para adicionar pelo CÓDIGO \n");
+            scanf("%d", &menuNav);
+            if (menuNav == 1) {
+                printf("Digite o numero \n"); 
+                scanf("%d", &numero);
+            }else {
+                int codigo;
+                printf("Digite o código do produto\n"); 
+                scanf("%d", &codigo);
+                for (int i = 0; i<50; i++) {
+                    int prod_codigo = (produtos_cadastrados+i)->codigo;
+                    if (prod_codigo == codigo) {
+                        verificar = 1;
+                        break;
+                    }else {
+                        printf("Código inválido\n");
+                        sleep(2);
+                        comprar_produtos(produtos_cadastrados, tamanho);
+                    }
+                }
+                if (verificar == 1) {
+                        if ((produtos_cadastrados+i)->codigo != 0 && tem_no_carrinho((produtos_cadastrados+i)->codigo, tamanho) == -1) {    /* ISSO AQUI É PARA EVITAR DELE CONSEGUIR ADICIONAR ITENS REPETIDOS, EM NOVAS POCIÇÕES, VAI "ADICIONAR" O ITEM REPETIDO NA POSIÇÃO DO QUE SE REPETE */
+                        strcpy(produtos_carrinho[i].produto.nome, (produtos_cadastrados+i)->nome);
+                        produtos_carrinho[i].produto.codigo = (produtos_cadastrados+i)->codigo;
+                        produtos_carrinho[i].produto.preco = (produtos_cadastrados+i)->preco;   
+                        produtos_carrinho[i].quantidade += i;
+                        quantidade_itens_carrinho++;
+                        i++;
+                    }else{
+                        produtos_carrinho[tem_no_carrinho((produtos_cadastrados+i)->codigo, tamanho)].quantidade++; /* COLOQUEI O RETORNO DA FUNÇÃO QUE É O INDICE DENTRO DO ARRAY , CASO O PRODUTO TENHA NO CARRINHO, A ADIÇÃO VAI SER FEITA NA POCIÇÃO DE QUANTIDADE QUE A FUNÇÃO RETORNOU*/
+                    }
+                }
+                printf("Produto cadastrado\n");
+                sleep(5);
+                menu(produtos_cadastrados, tamanho);
+            }
     
             getchar(); //LIMPAR BUFFER, ESSE PROBLEMA É MEIO CHATO
-            //aqui só copia os valores, só se o valor do código for diferente de 0 
-            if ((produtos_cadastrados+numero-1)->codigo != 0 && tem_no_carrinho((produtos_cadastrados+numero-1)->codigo, tamanho) == 1) {    /* ISSO AQUI É PARA EVITAR DELE CONSEGUIR ADICIONAR ITENS REPETIDOS, AÍ SÓ VAI AUMENTA A QUANTIDADE DE PRODUTOS  */
+            //aqui só copia os valores, só se o valor do código for diferente de 0 (ENTÃO O PRODUTO TEM QUE EXISITIR NO MERCADO)
+            if ((produtos_cadastrados+numero-1)->codigo != 0 && tem_no_carrinho((produtos_cadastrados+numero-1)->codigo, tamanho) == -1) {    /* ISSO AQUI É PARA EVITAR DELE CONSEGUIR ADICIONAR ITENS REPETIDOS, EM NOVAS POCIÇÕES, VAI "ADICIONAR" O ITEM REPETIDO NA POSIÇÃO DO QUE SE REPETE */
                 strcpy(produtos_carrinho[i].produto.nome, (produtos_cadastrados+numero-1)->nome);
                 produtos_carrinho[i].produto.codigo = (produtos_cadastrados+numero-1)->codigo;
                 produtos_carrinho[i].produto.preco = (produtos_cadastrados+numero-1)->preco;   
                 produtos_carrinho[i].quantidade += i;
+                quantidade_itens_carrinho++;
                 i++;
-            }else if(tem_no_carrinho((produtos_cadastrados+numero-1)->codigo, tamanho) == 0){
-                produtos_carrinho[i].quantidade += i;
+            }else{
+                produtos_carrinho[tem_no_carrinho((produtos_cadastrados+numero-1)->codigo, tamanho)].quantidade++; /* COLOQUEI O RETORNO DA FUNÇÃO QUE É O INDICE DENTRO DO ARRAY , CASO O PRODUTO TENHA NO CARRINHO, A ADIÇÃO VAI SER FEITA NA POCIÇÃO DE QUANTIDADE QUE A FUNÇÃO RETORNOU*/
             }
 
-            printf("digite\n1- para adicionar outro produto\n2 ou qualquer outra número - para sair\n");
+            printf("Digite\n1- para adicionar outro produto\n2 ou qualquer outra número - para sair\n");
             scanf("%d", &sair);
 
         }while (sair==1);
@@ -163,6 +283,7 @@ void comprar_produtos(Produto *produtos_cadastrados, int *tamanho){
         break; 
 
         case 2:
+        menu(produtos_cadastrados, tamanho);
         break;
     }
 }
@@ -185,19 +306,29 @@ void listar_produtos(Produto *produtos_cadastrados, int *tamanho){
     menu(produtos_cadastrados, tamanho);
 }
 
+//int tam_aux=0;   
 void cadastrar_produtos(Produto * produtos, int * N){
-    //para cadastrar
     system(CLEAR);
-    printf("Deseja cadastrar quantos produtos?\n");
+    printf("Deseja cadastrar quantos produtos? (limite de 50 produtos)\n");
     scanf("%d", N);
-    getchar();
+
+    getchar(); // limpa o buffer do newline
+
+    if (*N > 50) {
+        printf("númeoro inválido\nreiniciando probrama\n"); //coloquei isso porque sem querer eu digitava um numero muito alto quando ia testar sem querer kkkkkk 
+        cadastrar_produtos(produtos, N);
+        sleep(1);
+    }
+
 
     /* AQUI FOI A PRIMEIRA PARTE QUE FIZ DO CÓDIGO, A FUNÇÃO DE CADASTRO */
     /* A FUNÇÃO INSTÂNCIA UM PONTEIRO PARA O TIPO DE DADO STRUCT, (A VARIÁVEL ESTÁ LÁ NA MAIN, E É UM ARRAY DE STRUCT) ENTÂO PARA ATRIBUIR VALOR: */
     /* É SÓ COLOCAR A VARIÁVEL COM UM . (dot) E ESPECIFICAR*/
     
+
     for (int i=0; i<*N; i++) {
-       system(CLEAR);
+        
+        system(CLEAR);
         printf("__________________________________________________________________________\n\n");
         printf("Digite o codigo do %d° produto: \n", i + 1);
 
@@ -208,7 +339,7 @@ void cadastrar_produtos(Produto * produtos, int * N){
         fgets(produtos[i].nome, sizeof(produtos[i].nome), stdin);
         strtok(produtos[i].nome, "\n"); // remove o newline do final
 
-        printf("Digite o preço do %d° produto: \n", i + 1);
+        printf("Digite o preço do %d° produto: (por segurança, digte dessa forma, ex: 20)\n", i + 1);
         scanf("%2f", &produtos[i].preco);
         getchar(); // limpa o buffer do newline 
 
@@ -216,9 +347,9 @@ void cadastrar_produtos(Produto * produtos, int * N){
 
     printf("Cadastrado, voltando para menu\n");
     
-    int tamanho;
     tamanho += *N; //tive uma sacada não tão boa aqui, o tamanho tá adicionando o valor dele mais ao tamanho que o usuário digitou, mas o problema é que cria mais uma variável
+    //tam_aux = tam_aux + (*N); a ideia nessa parte era colocar no loop, para toda vez que o usuário retornar na função os valores não serem sobrescritos, mas não funcionou
 
     sleep(5);
-    menu(produtos, &tamanho);
+    menu(produtos, N);
 }

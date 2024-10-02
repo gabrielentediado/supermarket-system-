@@ -26,12 +26,12 @@ void listar_produtos(Produto *produtos_cadastrados, int *tamanho);
 void cadastrar_produtos(Produto *produtos, int *N);
 void comprar_produtos(Produto *produtos_cadastrados, int *tamanho);
 void visualizar_carrinho(Produto *produtos_cadastrados, int *tamanho2);
-
-void fechar_pedido(Carrinho *carrinho, int tamanho);
-
 int tem_no_carrinho(int codigo, int * tamanho); //Carrinho *carrinho, int tamanho, int codigo
 
-Produto* pegar_produto_por_codigo(Produto *produtos, int tamanho, int codigo);
+
+void fechar_pedido();
+
+Produto* pegar_produto_por_codigo(Produto *produtos, int tamanho, int codigo); //Produto *produtos, int tamanho, 
 
 extern int menuNav;
 
